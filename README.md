@@ -14,13 +14,13 @@ A Next.js application for uploading, analyzing, and modifying Excel traffic coun
 •	Python Backend Integration – Uses openpyxl for accurate Excel manipulation
   
 **Tech Stack**
-  •	Framework: Next.js 15 / App Router
-  •	Language: TypeScript
-  •	Styling: Tailwind CSS
-  •	Icons: Lucide React
-  •	Backend Processing: Python (openpyxl)
-  •	File Handling: Node.js File System API
-  •	Runtime: Node.js server functions (for Python execution)
+  1.	Framework: Next.js 15 / App Router
+  2.	Language: TypeScript
+  3.	Styling: Tailwind CSS
+  4.	Icons: Lucide React
+  5.	Backend Processing: Python (openpyxl)
+  6.	File Handling: Node.js File System API
+  7.	Runtime: Node.js server functions (for Python execution)
 
 **Getting Started**
   1.	Install dependencies:
