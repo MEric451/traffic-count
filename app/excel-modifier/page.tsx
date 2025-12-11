@@ -158,7 +158,7 @@ export default function ExcelTrafficModifier() {
       const ext = originalName.match(/\.[^/.]+$/)?.[0] || ".xlsx";
       setDownloadFilename(`${nameWithoutExt}_mody${ext}`);
 
-      setStatus("Success! File processed with colors preserved");
+      setStatus("File processed successfully!");
       addLog("✓ Processing complete with formatting preserved!");
     } catch (error: unknown) {
       const errorMessage =
