@@ -192,7 +192,7 @@ export default function ExcelTrafficModifier() {
         <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
           Traffic Count Modifier
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">Vehicular traffic modifications tool</p>
+        {/* <p className="text-gray-600 dark:text-gray-300 mb-6">Vehicular traffic modifications tool</p> */}
 
         {/* Upload with drag and drop */}
         <label className="block mb-6 cursor-pointer">
