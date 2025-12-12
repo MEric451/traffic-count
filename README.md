@@ -40,8 +40,6 @@ A Next.js application for uploading, analyzing, and modifying Excel traffic coun
   
   •	Runtime: Node.js server functions (for Python execution)
 
-
-
 **Getting Started**
   1.	Install dependencies:
   npm install
