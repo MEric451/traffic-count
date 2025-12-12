@@ -20,23 +20,51 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    const inputPath = path.join(process.cwd(), `temp_input_${Date.now()}.xlsx`);
-    const outputPath = path.join(process.cwd(), `temp_output_${Date.now()}.xlsx`);
+    let modifiedFile: Buffer;
+    let logOutput: string;
     
-    await writeFile(inputPath, buffer);
+    // Use different processing based on environment
+    if (process.env.VERCEL_URL) {
+      // Production: Use Vercel Python function
+      const pythonResponse = await fetch(`${process.env.VERCEL_URL}/api/python/process-excel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file: buffer.toString('base64'),
+          percentage: percentage,
+          operation: operation
+        })
+      });
+
+      if (!pythonResponse.ok) {
+        const error = await pythonResponse.json();
+        throw new Error(error.error || 'Python processing failed');
+      }
+
+      const result = await pythonResponse.json();
+      modifiedFile = Buffer.from(result.file, 'base64');
+      logOutput = result.log;
+    } else {
+      // Development: Use local Python script
+      const inputPath = path.join(process.cwd(), `temp_input_${Date.now()}.xlsx`);
+      const outputPath = path.join(process.cwd(), `temp_output_${Date.now()}.xlsx`);
+      
+      await writeFile(inputPath, buffer);
+      
+      const { stdout } = await execAsync(`python modify_excel.py "${inputPath}" "${outputPath}" ${percentage} ${operation}`);
+      
+      modifiedFile = await readFile(outputPath);
+      logOutput = stdout;
+      
+      await unlink(inputPath);
+      await unlink(outputPath);
+    }
     
-    const { stdout } = await execAsync(`python modify_excel.py "${inputPath}" "${outputPath}" ${percentage} ${operation}`);
-    
-    const modifiedFile = await readFile(outputPath);
-    
-    await unlink(inputPath);
-    await unlink(outputPath);
-    
-    return new NextResponse(modifiedFile, {
+    return new NextResponse(new Uint8Array(modifiedFile), {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': 'attachment; filename="Modified_Traffic_Counts.xlsx"',
-        'X-Process-Log': Buffer.from(stdout).toString('base64'),
+        'X-Process-Log': Buffer.from(logOutput).toString('base64'),
       },
     });
   } catch (error) {
