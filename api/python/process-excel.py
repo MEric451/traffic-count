@@ -1,4 +1,3 @@
-from http.server import BaseHTTPRequestHandler
 import json
 import base64
 import openpyxl
@@ -6,38 +5,42 @@ import random
 import io
 import tempfile
 import os
+from urllib.parse import parse_qs
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            data = json.loads(post_data.decode('utf-8'))
-            file_data = base64.b64decode(data['file'])
-            percentage = float(data['percentage'])
-            operation = data['operation']
-            
-            modified_file, log_messages = self.modify_excel(file_data, percentage, operation)
-            
-            response = {
-                'file': base64.b64encode(modified_file).decode('utf-8'),
-                'log': '\n'.join(log_messages)
-            }
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-            
-        except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            error_response = {'error': str(e)}
-            self.wfile.write(json.dumps(error_response).encode())
+def handler(request):
+    if request.method != 'POST':
+        return {
+            'statusCode': 405,
+            'body': json.dumps({'error': 'Method not allowed'})
+        }
     
-    def modify_excel(self, file_data, percentage=13, operation='increase'):
+    try:
+        data = json.loads(request.body)
+        file_data = base64.b64decode(data['file'])
+        percentage = float(data['percentage'])
+        operation = data['operation']
+        
+        modified_file, log_messages = modify_excel(file_data, percentage, operation)
+        
+        response = {
+            'file': base64.b64encode(modified_file).decode('utf-8'),
+            'log': '\n'.join(log_messages)
+        }
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps(response)
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'error': str(e)})
+        }
+    
+def modify_excel(file_data, percentage=13, operation='increase'):
         with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False) as input_file:
             input_file.write(file_data)
             input_path = input_file.name
