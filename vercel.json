@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/python/process-excel.py": {
+    "api/python/*.py": {
       "runtime": "python3.9"
     }
   }
