@@ -70,7 +70,7 @@ export default function LaneDistributionInput({
 
         {/* Manual Entry */}
         <div className="space-y-2">
-          <label className="text-sm font-medium block text-gray-700 mt-4">Paste Distribution Array</label>
+          <label className="text-sm font-medium block text-gray-700 mt-4">Paste Distribution Array </label>
           <textarea
             className="w-full min-h-[100px] p-3 border-2 border-gray-300 bg-white rounded-md text-sm font-mono text-black placeholder:text-gray-500"
             placeholder="[1421, 3098, 1368, 895, 1720, 809, 176, 150, 566, 438, 0, 0]"
@@ -79,7 +79,7 @@ export default function LaneDistributionInput({
           />
         </div>
 
-        {/* Validation */}
+        {/* Validation. */}
         {manualInput && (
           <div className={`text-sm p-2 rounded ${validation.valid ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'} mb-2`}>
             {validation.valid ? (
