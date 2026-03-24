@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { VEHICLE_CLASSES } from '@/lib/distributionAlgorithm';
+import { VEHICLE_CLASSES } from '@/lib/utils';
 
 interface PreviewModalProps {
   open: boolean;

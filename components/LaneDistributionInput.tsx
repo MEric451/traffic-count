@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { parseDistributionInput, validateDistribution, VEHICLE_CLASSES } from '@/lib/distributionAlgorithm';
+import { parseDistributionInput, validateDistribution, VEHICLE_CLASSES } from '@/lib/utils';
 
 interface LaneDistributionInputProps {
   laneName: string;
