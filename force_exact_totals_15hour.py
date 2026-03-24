@@ -2,17 +2,11 @@ import openpyxl
 from openpyxl import load_workbook
 import random
 
-def force_exact_totals(input_file, output_file):
+def force_exact_totals(input_file, output_file, totals):
     """
     Force exact totals to match the image by aggressive distribution
     """
-    
-    # Exact totals from image
-    totals = {
-        'Bisil Bound': [719, 1799, 954, 543, 551, 34, 9, 58, 677, 269, 363, 9], # Total: 5985
-        'Athi River Bound': [726, 1479, 1097, 651, 492, 58, 23, 67, 665, 233, 306, 11] # Total: 5808
-    }
-    
+
     wb = load_workbook(input_file)
     hourly_sheets = [name for name in wb.sheetnames if name != 'DAY']
     
@@ -24,9 +18,7 @@ def force_exact_totals(input_file, output_file):
         '6-7AM': 0.08, '7-8AM': 0.08, '8-9AM': 0.08, '9-10AM': 0.065, '10-11AM': 0.065,
         '11-12PM': 0.065, '12-1PM': 0.065, '1-2PM': 0.065, '2-3PM': 0.065,
         '3-4PM': 0.065, '4-5PM': 0.08, '5-6PM': 0.08, '6-7PM': 0.08,
-        '7-8PM': 0.06, '8-9PM': 0.04, '9-10PM': 0.03, '10-11PM': 0.015,
-        '11-12AM': 0.01, '12-1AM': 0.005, '1-2AM': 0.0025, '2-3AM': 0.0025,
-        '3-4AM': 0.0025, '4-5AM': 0.0025, '5-6AM': 0.004
+        '7-8PM': 0.06, '8-9PM': 0.04, '9-10PM': 0.03
     }
     
     # Find direction rows from reference sheet
@@ -165,7 +157,13 @@ def verify_forced_totals(wb, totals, hourly_sheets, direction_rows):
             print(f"  [Difference: {direction_actual - direction_expected}]")
 
 if __name__ == "__main__":
-    input_file = "Kitengela Area, Day 3 Wednesday Counts.xlsx"
-    output_file = "Kitengela_Forced_Exact_Totals.xlsx"
+    # Define your totals here - change as needed
+    totals = {
+        'Nakuru Bound':  [130, 566, 70, 48, 46, 46, 6, 27, 21, 2, 0, 0],
+        'Nairobi Bound': [155, 340, 48, 38, 51, 6, 10, 28, 14, 0, 0, 0]
+    }
     
-    force_exact_totals(input_file, output_file)
+    input_file = "Nakuru Area Day 1 Thursday Counts, Safari Center Site Counts.xlsx"
+    output_file = "Nakuru Area Day 6 Tuesday Counts, Safari Center Site Counts.xlsx"
+    
+    force_exact_totals(input_file, output_file, totals)
