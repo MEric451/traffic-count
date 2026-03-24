@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Upload,
   Download,
@@ -8,8 +8,6 @@ import {
   AlertCircle,
   Heart,
   Loader2,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 
@@ -27,28 +25,7 @@ export default function ExcelTrafficModifier() {
   const [downloadFilename, setDownloadFilename] = useState(
     "Modified_Traffic_Counts.xlsx"
   );
-  const [darkMode, setDarkMode] = useState(false);
   const [downloading, setDownloading] = useState(false);
-
-
-  useEffect(() => {
-    const saved = localStorage.getItem("darkMode");
-    if (saved) {
-      setDarkMode(saved === "true");
-      document.documentElement.classList.toggle("dark", saved === "true");
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem("darkMode", String(newMode));
-    if (newMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   const addLog = (message: string) => {
     setLog((prev) => [
@@ -174,19 +151,8 @@ export default function ExcelTrafficModifier() {
   return (
     <div className="min-h-screen bg-animated-gradient p-8 relative overflow-hidden">
       <div className="max-w-4xl mx-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-xl p-8 transition-colors duration-300 relative z-10">
-        {/* Dark Mode Toggling */}
+        {/* Theme Toggle */}
         <div className="flex justify-end mb-4">
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? (
-              <Sun className="w-5 h-5 text-yellow-400" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            )}
-          </button>
         </div>
 
         <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
