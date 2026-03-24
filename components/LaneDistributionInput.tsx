@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 import { Input } from '@/components/ui/input';
 import { parseDistributionInput, validateDistribution, VEHICLE_CLASSES } from '@/lib/distributionAlgorithm';
 
@@ -16,8 +15,6 @@ export default function LaneDistributionInput({
   onDistributionChange,
   expectedCount
 }: LaneDistributionInputProps) {
-  const [total, setTotal] = useState<string>('');
-  const [isAutoCalculated, setIsAutoCalculated] = useState(false);
   const [distribution, setDistribution] = useState<number[]>([]);
   const [manualInput, setManualInput] = useState<string>('');
   const [validation, setValidation] = useState<{ valid: boolean; error?: string; sum: number }>({ valid: true, sum: 0 });
@@ -30,11 +27,7 @@ export default function LaneDistributionInput({
       setDistribution(parsed);
       onDistributionChange(parsed);
       
-      // Auto-calculate and set total
       const calculatedSum = parsed.reduce((sum, val) => sum + val, 0);
-      setTotal(calculatedSum.toString());
-      setIsAutoCalculated(true); // Lock the field
-      
       const validation = validateDistribution(parsed, expectedCount, calculatedSum);
       setValidation(validation);
     } else {
@@ -44,20 +37,15 @@ export default function LaneDistributionInput({
 
   const handleValueChange = (index: number, value: string) => {
     const newDist = [...distribution];
-    // Allow empty string or convert to number, default to 0 for calculations
     const numValue = value === '' ? 0 : parseInt(value) || 0;
     newDist[index] = numValue;
     setDistribution(newDist);
     onDistributionChange(newDist);
     
-    // Update the manual input array to reflect changes
     const updatedArray = `[${newDist.join(', ')}]`;
     setManualInput(updatedArray);
     
-    // Update total
     const calculatedSum = newDist.reduce((sum, val) => sum + val, 0);
-    setTotal(calculatedSum.toString());
-    
     const validation = validateDistribution(newDist, expectedCount, calculatedSum);
     setValidation(validation);
   };

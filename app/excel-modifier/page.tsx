@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Upload,
   Download,
@@ -9,7 +9,6 @@ import {
   Heart,
   Loader2,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 
 export default function ExcelTrafficModifier() {
@@ -26,7 +25,6 @@ export default function ExcelTrafficModifier() {
   const [downloadFilename, setDownloadFilename] = useState(
     "Modified_Traffic_Counts.xlsx"
   );
-  const [darkMode, setDarkMode] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   const addLog = (message: string) => {
@@ -155,7 +153,6 @@ export default function ExcelTrafficModifier() {
       <div className="max-w-4xl mx-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-xl p-8 transition-colors duration-300 relative z-10">
         {/* Theme Toggle */}
         <div className="flex justify-end mb-4">
-          <ThemeToggle />
         </div>
 
         <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
