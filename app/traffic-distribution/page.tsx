@@ -4,14 +4,17 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Eye, Copy, FileUp, Settings } from 'lucide-react';
+import { Eye, Copy, FileUp, Settings, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Toaster } from 'sonner';
 import LaneDistributionInput from '@/components/LaneDistributionInput';
 import PreviewModal from '@/components/PreviewModal';
 import ProcessingModal from '@/components/ProcessingModal';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import FileProcessingLoader from '@/components/FileProcessingLoader';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function TrafficDistributionPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -24,6 +27,8 @@ export default function TrafficDistributionPage() {
   const [error, setError] = useState<string>('');
   const [processedFileBlob, setProcessedFileBlob] = useState<Blob | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Always 12 vehicle classes regardless of hour type
   const expectedCount = 12;
@@ -32,6 +37,11 @@ export default function TrafficDistributionPage() {
     setFile(uploadedFile);
     setLanes([]);
     setLaneDistributions({});
+    setIsProcessingFile(true);
+    
+    // Auto-fill output filename based on uploaded file name (without extension)
+    const fileNameWithoutExt = uploadedFile.name.replace(/\.xlsx?$/i, '');
+    setOutputFilename(`${fileNameWithoutExt} - Modified`);
 
     // Detect lanes from uploaded file
     const formData = new FormData();
@@ -47,6 +57,9 @@ export default function TrafficDistributionPage() {
 
       if (result.success) {
         if (result.lanes && result.lanes.length > 0) {
+          // Small delay for smooth UX
+          await new Promise(resolve => setTimeout(resolve, 600));
+          
           setLanes(result.lanes);
           // Initialize empty distributions
           const initialDist: Record<string, number[]> = {};
@@ -63,6 +76,8 @@ export default function TrafficDistributionPage() {
     } catch (err) {
       toast.error('Failed to detect lanes from file');
       console.error(err);
+    } finally {
+      setIsProcessingFile(false);
     }
   };
 
@@ -168,19 +183,29 @@ export default function TrafficDistributionPage() {
     setProcessedFileBlob(null);
   };
 
-  const handleCopyFilename = () => {
-    if (file) {
-      navigator.clipboard.writeText(file.name);
-      // Show brief success feedback
-      const button = document.getElementById('copy-filename');
-      if (button) {
-        const originalText = button.innerHTML;
-        button.innerHTML = '✓';
-        setTimeout(() => {
-          button.innerHTML = originalText;
-        }, 1000);
-      }
+  const handleDeleteFile = () => {
+    // Reset to initial state
+    setFile(null);
+    setOutputFilename('');
+    setLanes([]);
+    setLaneDistributions({});
+    setProcessingStatus('idle');
+    setError('');
+    setProcessedFileBlob(null);
+    setShowPreview(false);
+    setShowDeleteDialog(false);
+    
+    // Reset file input
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
+    
+    toast.success('File removed successfully');
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
   };
 
   return (
@@ -239,21 +264,27 @@ export default function TrafficDistributionPage() {
                       <span>Browse Files</span>
                     </Button>
                   </label>
-                  {file && (
+                  {file && !isProcessingFile && (
                     <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-start gap-2 text-sm text-green-700">
                         <div className="w-5 h-5 flex items-center justify-center text-green-500 text-xs">✓</div>
-                        <span className="font-medium">Uploaded: {file.name}</span>
+                        <div className="flex-1">
+                          <span className="font-medium">Uploaded: {file.name}</span>
+                        </div>
                         <button
-                          id="copy-filename"
-                          onClick={handleCopyFilename}
-                          className="p-1 hover:bg-green-200 rounded transition-colors"
-                          title="Copy filename"
+                          onClick={handleDeleteClick}
+                          className="p-1 hover:bg-red-200 rounded transition-colors text-red-600 hover:text-red-700"
+                          title="Remove file"
                         >
-                          <Copy className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
+                  )}
+                  
+                  {/* File Processing Loader */}
+                  {isProcessingFile && (
+                    <FileProcessingLoader fileName={file?.name} />
                   )}
                   {lanes.length > 0 && (
                     <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -294,10 +325,10 @@ export default function TrafficDistributionPage() {
                     <div>
                       <label className="text-sm font-medium mb-3 block text-gray-700">Output Filename</label>
                       <Input
-                        placeholder="e.g. Day 1 Monday Thika Road  Hourly Traffic Volumes Tally.xlsx"
+                        placeholder="Enter your desired output filename"
                         value={outputFilename}
                         onChange={(e) => setOutputFilename(e.target.value)}
-                        className="border-gray-300 transition-colors"
+                        className="border-gray-300 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                       />
                     </div>
                   </div>
@@ -368,6 +399,13 @@ export default function TrafficDistributionPage() {
           onClose={handleCloseProcessing}
           onDownload={handleDownload}
           error={error}
+        />
+
+        <DeleteConfirmationDialog
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleDeleteFile}
+          fileName={file?.name}
         />
       </div>
       <Toaster position="top-right" />
